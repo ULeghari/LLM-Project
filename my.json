@@ -1,0 +1,38 @@
+{
+  "Basic Account": {
+    "details": [
+      {
+        "question": "How can I open a basic account?",
+        "answer": "You can open a basic account by visiting any of our branches with your CNIC."
+      },
+      {
+        "question": "What documents are required for account opening?",
+        "answer": "You will need your CNIC and a recent utility bill for address verification."
+      }
+    ]
+  },
+  "Student Loan": {
+    "details": [
+      {
+        "question": "Is there any loan scheme for students?",
+        "answer": "Yes, our student loan scheme offers low-interest loans for educational purposes."
+      },
+      {
+        "question": "How do I apply for a student loan?",
+        "answer": "You can apply online through our website or by visiting the nearest branch."
+      }
+    ]
+  },
+  "Debit Card": {
+    "details": [
+      {
+        "question": "How do I get a debit card?",
+        "answer": "You can request a debit card during account opening or later via online banking."
+      },
+      {
+        "question": "What to do if my debit card is lost?",
+        "answer": "Immediately call our helpline to block the card and request a replacement."
+      }
+    ]
+  }
+}
