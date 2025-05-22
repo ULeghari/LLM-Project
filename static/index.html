@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUST Banking Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #chat-container {
+            height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .message {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+        .message strong {
+            font-weight: bold;
+            color: inherit;
+        }
+        .user {
+            background: #e3f2fd;
+            margin-left: auto;
+        }
+        .bot {
+            background: #f5f5f5;
+            margin-right: auto;
+        }
+        #input-area {
+            display: flex;
+            gap: 10px;
+        }
+        #message-input {
+            flex-grow: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        /* Typing indicator styles */
+        .typing-indicator {
+            display: inline-block;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            margin: 5px;
+        }
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <h1>NUST Banking Assistant</h1>
+    <div id="chat-container"></div>
+    <div id="input-area">
+        <input type="text" id="message-input" placeholder="Ask about banking...">
+        <button id="send-button">Send</button>
+    </div>
+    <div id="upload-area" style="margin: 20px 0;">
+        <h3>Upload New Policy Documents</h3>
+        <input type="file" id="file-upload">
+        <button id="upload-button">Upload</button>
+        <div id="upload-status"></div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        
+        // WebSocket connection
+        const socket = new WebSocket(`ws://${window.location.host}/ws`);
+        
+        // Typing indicator functions
+        function showTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'typing-indicator';
+            indicator.id = 'typing-indicator';
+            indicator.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            chatContainer.appendChild(indicator);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // WebSocket message handler - ADD THIS SECTION
+        socket.onmessage = (event) => {
+            if (event.data === "TYPING_INDICATOR_START") {
+                showTypingIndicator();
+            } else {
+                hideTypingIndicator();
+                addMessage(event.data, 'bot');
+            }
+        };
+        
+        // Existing message functions
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                addMessage(message, 'user');
+                socket.send(message);
+                messageInput.value = '';
+            }
+        }
+        
+        function formatResponse(text) {
+            // Replace **text** with <strong>text</strong>
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            // Format the text before displaying
+            messageDiv.innerHTML = formatResponse(text);
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
